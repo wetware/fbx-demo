@@ -1,0 +1,14 @@
+version: '3.8'
+services:
+  app:
+    image: wetware/fbx-demo
+    container_name: fbx-demo
+    network_mode: host
+    volumes:
+      - /var/run/tappd.sock:/var/run/tappd.sock
+      - ${DSTACK_SOCKET}:/var/run/dstack.sock
+      - ${TAPPD_SOCKET}:/var/run/tappd.sock
+    environment:
+      - DSTACK_SIMULATOR_ENDPOINT=/var/run/dstack.sock
+      - DEBUG=true
+    restart: no
