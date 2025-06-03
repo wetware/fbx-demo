@@ -1,0 +1,3 @@
+[submodule "tiktok/pycapnp"]
+	path = tiktok/pycapnp
+	url = https://github.com/capnproto/pycapnp.git
