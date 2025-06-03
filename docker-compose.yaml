@@ -12,3 +12,14 @@ services:
       - DSTACK_SIMULATOR_ENDPOINT=/var/run/dstack.sock
       - DEBUG=true
     restart: no
+
+  tiktok-api:
+    build: tiktok
+    container_name: tiktok-api
+    network_mode: host
+    volumes:
+      - ./api:/api
+    environment:
+      - PYTHONUNBUFFERED=1
+    working_dir: /
+    command: python -m api.main
