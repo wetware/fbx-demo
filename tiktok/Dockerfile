@@ -11,7 +11,7 @@ RUN apt-get update && apt-get install -y \
 WORKDIR /
 
 RUN pip install --no-cache-dir \
-    TikTokApi
+    tikapi
 
 RUN pip install --no-cache-dir \
     pycapnp

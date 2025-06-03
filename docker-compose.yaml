@@ -2,11 +2,11 @@ version: "3.8"
 services:
   wetware:
     image: wetware/fbx-demo
-    container_name: fbx-demo
+    container_name: wetware
     network_mode: host
     volumes:
       # Wetware-specific
-      - ./wetware:/pkg
+      # TODO: copy WASM file to container
       # Dstack-specific
       - /var/run/tappd.sock:/var/run/tappd.sock
       - ${DSTACK_SOCKET}:/var/run/dstack.sock
@@ -19,13 +19,14 @@ services:
     tty: true
     privileged: true
     working_dir: /pkg
+    command: ww cluster run todo.wasm
 
   tiktok-api:
-    build: tiktok
-    container_name: tiktok-api
+    image: tikapi/tikapi
+    container_name: tikapi
     network_mode: host
     volumes:
-      - ./api:/api
+      - ./tiktok/api:/api
     environment:
       - PYTHONUNBUFFERED=1
     working_dir: /
