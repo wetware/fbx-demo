@@ -1,10 +1,21 @@
 # fbx-demo
 
+## Project Structure
+
+This demo app consists of a TikTok reply bot split into two services:
+
+* `tiktok`: a service receiving TikTok notifications, sending them with some context to a bot, and posting the bot's replies. The service is using TikApi,
+because [the suggested alternative](https://github.com/davidteather/TikTok-Api) does not provide the notification or tagging functionality
+described in the document.
+* `wetware`: our [Wetware](https://github.com/wetware/pkg) platform running on the TDX emulator. The service will be running Wetware processes:
+WASM guest processes that can only reach outside their Sandbox through Object Capabilities.
+
 ## Requiements
 
 * Cargo
 * Phala
 * Dstack
+* A TikTok API key and an account key
 
 ## Setup
 
