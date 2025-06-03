@@ -5,6 +5,9 @@ services:
     container_name: fbx-demo
     network_mode: host
     volumes:
+      # Wetware-specific
+      - ./wetware:/pkg
+      # Dstack-specific
       - /var/run/tappd.sock:/var/run/tappd.sock
       - ${DSTACK_SOCKET}:/var/run/dstack.sock
       - ${TAPPD_SOCKET}:/var/run/tappd.sock
@@ -12,6 +15,10 @@ services:
       - DSTACK_SIMULATOR_ENDPOINT=/var/run/dstack.sock
       - DEBUG=true
     restart: no
+    stdin_open: true
+    tty: true
+    privileged: true
+    working_dir: /pkg
 
   tiktok-api:
     build: tiktok
