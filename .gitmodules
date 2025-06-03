@@ -2,3 +2,6 @@
 [submodule "wetware"]
 	path = wetware
 	url = https://github.com/wetware/pkg
+[submodule "dstack"]
+	path = dstack
+	url = https://github.com/Phala-Network/dstack
