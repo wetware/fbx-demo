@@ -1,4 +1,3 @@
-version: "3.8"
 services:
   wetware:
     image: wetware/fbx-demo
@@ -14,12 +13,15 @@ services:
     environment:
       - DSTACK_SIMULATOR_ENDPOINT=/var/run/dstack.sock
       - DEBUG=true
+    # cap_add:
+    #   - NET_ADMIN
+    #   - NET_RAW
     restart: no
-    stdin_open: true
+    # stdin_open: true
     tty: true
     privileged: true
     working_dir: /pkg
-    command: ww cluster run todo.wasm
+    command: ww start
 
   tiktok-api:
     image: tikapi/tikapi
