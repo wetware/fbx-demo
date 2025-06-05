@@ -10,10 +10,10 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /
 
-RUN pip install --no-cache-dir \
-    tikapi
+COPY ./requirements.txt /requirements.txt
 
-RUN pip install --no-cache-dir \
-    pycapnp
+RUN pip install --no-cache-dir -r /requirements.txt
+
+COPY . /tiktok
 
 CMD ["python", "-c", "print('Hi :) I should be replaced in docker-compose.yaml')"]
