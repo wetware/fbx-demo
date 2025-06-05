@@ -27,9 +27,14 @@ services:
     image: tikapi/tikapi
     container_name: tikapi
     network_mode: host
-    volumes:
-      - ./tiktok/api:/api
     environment:
       - PYTHONUNBUFFERED=1
+      - API_KEY=${API_KEY}
+      - ACCOUNT_KEY=${ACCOUNT_KEY}
+      - TIKTOK_HOST=${TIKTOK_HOST}
+      - TIKTOK_PORT=${TIKTOK_PORT}
     working_dir: /
-    command: python -m api.main
+    command: python -m tiktok.api.main
+    # The command bellow is used to test the pycapnp library
+    # command: sh -c "python -m tiktok.api.main & sleep 5s && python -m tiktok.api.test_client"
+    restart: no

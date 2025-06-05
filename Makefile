@@ -2,9 +2,9 @@
 
 all: build run
 
-build: build-dstack build-tikapi build-wetware
+build: build-dstack build-tiktok build-wetware
 
-build-tikapi:
+build-tiktok:
 	docker build -t tikapi/tikapi tiktok
 
 build-wetware:
