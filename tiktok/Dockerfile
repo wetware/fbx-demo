@@ -16,4 +16,4 @@ RUN pip install --no-cache-dir -r /requirements.txt
 
 COPY . /tiktok
 
-CMD ["python", "-c", "print('Hi :) I should be replaced in docker-compose.yaml')"]
+CMD ["python", "-c", "print('I should be replaced in docker-compose.yaml')"]
