@@ -29,12 +29,13 @@ services:
     network_mode: host
     environment:
       - PYTHONUNBUFFERED=1
+      - PYTHONDONTWRITEBYTECODE=1
       - API_KEY=${API_KEY}
       - ACCOUNT_KEY=${ACCOUNT_KEY}
       - TIKTOK_HOST=${TIKTOK_HOST}
       - TIKTOK_PORT=${TIKTOK_PORT}
     working_dir: /
-    command: python -m tiktok.api.main
+    command: python -m tiktok.api.server
     # The command bellow is used to test the pycapnp library
-    # command: sh -c "python -m tiktok.api.main & sleep 5s && python -m tiktok.api.test_client"
+    # command: sh -c "python -m tiktok.api.server & sleep 1s && python -m tiktok.api.test.client"
     restart: no
