@@ -4,6 +4,10 @@ all: build run
 
 build: build-dstack build-tiktok build-wetware
 
+build-app:
+	cd app && \
+		make
+
 build-tiktok:
 	docker build -t tikapi/tikapi tiktok
 
@@ -17,7 +21,11 @@ build-dstack:
 	cd dstack/sdk/simulator && \
 		./build.sh
 
-clean: stop-dstack
+clean: clean-app stop-dstack
+
+clean-app:
+	cd app && \
+	make clean
 
 start-dstack:
 	cd dstack/sdk/simulator && \
