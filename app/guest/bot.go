@@ -2,16 +2,16 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"os"
-
-	ww "github.com/wetware/pkg/guest/system"
+	"time"
 
 	"github.com/wetware/fbx-demo/app/cap/tiktok"
 )
 
-func main() {
-	ctx := context.Background()
+type bot struct {
+	tt tiktok.TikTok
+}
 
 	caps, releases, err := ww.Bootstrap(ctx)
 	if err != nil {
