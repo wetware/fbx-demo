@@ -55,7 +55,10 @@ func main() {
 	fmt.Println("Resolved TikTok capability.")
 
 	// Connect to Wetware cluster.
-	wwClient, err := ww.InitClient(ctx, namespace, os.Stdin, os.Stdout, os.Stderr)
+	wwClient, closer, err := ww.InitClient(ctx, namespace, os.Stdin, os.Stdout, os.Stderr)
+	if closer != nil {
+		defer closer.Close()
+	}
 	if err != nil {
 		panic(err)
 	}
