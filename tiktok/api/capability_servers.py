@@ -28,6 +28,10 @@ class TikTok(tiktok_capnp.TikTok.Server):
         logger.info("Getting mention.")
         return await self.tiktok_client.get_mention()
 
+    async def comments(self, media_id: str) -> List[Comment]:
+        logger.info(f"Getting comments for media {media_id}.")
+        return await self.tiktok_client.get_comments(media_id)
+
     async def reply(self, media_id: str, comment_id: str, response: str, **kwargs):
         logger.info(f"Replying to comment {media_id}:{comment_id}: {response}.")
         return await self.tiktok_client.reply(media_id, comment_id, response)

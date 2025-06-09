@@ -1,9 +1,10 @@
+from ctypes import memset
 from abc import ABC, abstractmethod
 import logging
 import os
 
 from asyncio import Queue
-from typing import Union
+from typing import List, Union
 
 from tikapi import TikAPI, ValidationException, ResponseException
 from tikapi.api import APIResponse
@@ -33,6 +34,10 @@ class TikTokClient(ABC):
         pass
 
     @abstractmethod
+    async def get_comments(self, media_id: str) -> List[Comment]:
+        pass
+
+    @abstractmethod
     async def reply(self, media_id: str, comment_id: str, text: str):
         pass
 
@@ -42,12 +47,19 @@ class TikTokMockClient(TikTokClient):
         logger.info("[mock] Getting mention")
         return SAMPLE_COMMENT.cap()
 
+    async def get_comments(self, media_id: str) -> List[Comment]:
+        logger.info("[mock] Getting comments")
+        return [SAMPLE_COMMENT.cap(), SAMPLE_COMMENT.cap()]
+
     async def reply(self, media_id: str, comment_id: str, text: str):
         logger.info(f"[mock] Replying to comment {media_id}:{comment_id}: {text}")
         pass
 
 
 class TikApiClient(TikTokClient):
+    """
+    TODO: add tikapi.cursor attr for sequential requests.
+    """
 
     def __init__(self):
         api_key: str = os.getenv("API_KEY", "")
@@ -67,6 +79,20 @@ class TikApiClient(TikTokClient):
             # TODO: case in which no new mentions are fetched
         return await self.mention_queue.get()
 
+    async def get_comments(self, media_id: str) -> List[Comment]:
+        logger.info("Getting comments")
+        return await self.fetch_comments(media_id)
+
+    async def reply(self, media_id: str, comment_id: str, text: str):
+        try:
+            self.user.posts.comments.post(media_id=media_id, reply_comment_id=comment_id, text=text)
+        except ValidationException as e:
+            logger.error(f"{media_id}:{comment_id}: Validation error: {e} - {e.field}")
+
+        except ResponseException as e:
+            logger.error(f"{media_id}:{comment_id}: Response error: {e} - {e.response.status_code}")
+
+
     async def fetch_mentions(self):
         logger.info("Fetching mentions from TikTok.")
         try:
@@ -78,14 +104,14 @@ class TikApiClient(TikTokClient):
         except Exception as e:
             logger.error(f"Error fetching mentions: {e}")
 
-    async def reply(self, media_id: str, comment_id: str, text: str):
+    async def fetch_comments(self, media_id: str) -> List[Comment]:
+        logger.info("Fetching comments from TikTok.")
         try:
-            self.user.posts.comments.post(media_id=media_id, reply_comment_id=comment_id, text=text)
-        except ValidationException as e:
-            logger.error(f"{media_id}:{comment_id}: Validation error: {e} - {e.field}")
-
-        except ResponseException as e:
-            logger.error(f"{media_id}:{comment_id}: Response error: {e} - {e.response.status_code}")
+            response = self.user.posts.comments.list(media_id=media_id)
+            return parse_comments(response)
+        except Exception as e:
+            logger.error(f"Error fetching comments: {e}")
+        return []
 
 
 def parse_mention(mention: Union[APIResponse, bytes]) -> APIResponse:
@@ -111,3 +137,28 @@ def parse_mention(mention: Union[APIResponse, bytes]) -> APIResponse:
     except (KeyError, IndexError) as e:
         logger.error(f"Error parsing mention: {e}")
     return mention.next_items()
+
+
+def parse_comments(comments: APIResponse) -> List[Comment]:
+    parsed_comments: List[Comment] = [
+        Comment(
+            author=User(
+                id=comment["user"]["unique_id"],
+                uid=comment["user"]["uid"],
+                nickname=comment["user"]["nickname"],
+            ),
+            id=comment["cid"],
+            media_id=comment["aweme_id"],  # TODO mikel: validate this field is media_id
+            text=comment["text"],
+            replies=[],
+        ) for comment in comments.json()["comments"]
+    ]
+    return parsed_comments
+
+
+if __name__ == "__main__":
+    import asyncio
+    from sys import argv
+    cli = TikApiClient()
+    result = asyncio.run(cli.fetch_comments(argv[1]))
+    logger.info(result)
