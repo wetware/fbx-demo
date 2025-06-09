@@ -1,10 +1,12 @@
 services:
   app:
-    image: wetware/fbx-demo-wetware
+    image: wetware/fbx-demo-app
     container_name: fbx-demo-app
-    network_mode: host
+    # network_mode: host
+    networks:
+      - multicast_network
     environment:
-      - TIKTOK_HOST=tiktok-api
+      - TIKTOK_HOST=tiktok
       - TIKTOK_PORT=6060
     cap_add:
       - NET_ADMIN
@@ -13,7 +15,7 @@ services:
     tty: true
     privileged: true
     working_dir: /app
-    command: /app
+    command: sh -c "sleep 3s && ./app"
     depends_on:
       - tiktok
       - wetware
@@ -21,7 +23,9 @@ services:
   wetware:
     image: wetware/fbx-demo-wetware
     container_name: wetware
-    network_mode: host
+    # network_mode: host
+    networks:
+      - multicast_network
     volumes:
       # Dstack-specific
       - /var/run/tappd.sock:/var/run/tappd.sock
@@ -40,10 +44,12 @@ services:
     working_dir: /pkg
     command: ww start
 
-  tiktok-api:
+  tiktok:
     image: tikapi/tikapi
     container_name: tikapi
-    network_mode: host
+    # network_mode: host
+    networks:
+      - multicast_network
     environment:
       - PYTHONUNBUFFERED=1
       - PYTHONDONTWRITEBYTECODE=1
@@ -55,4 +61,15 @@ services:
     command: python -m tiktok.api.server
     # The command bellow is used to test the pycapnp library
     # command: sh -c "python -m tiktok.api.server & sleep 1s && python -m tiktok.api.test.client"
+    # command: sh -c "python -m tiktok.api.tiktok_client 7511959726389857558"
     restart: no
+
+networks:
+  multicast_network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.enable_ip_masquerade: "true"
+      com.docker.network.bridge.enable_icc: "true"
+    ipam:
+      config:
+        - subnet: 172.25.0.0/16
