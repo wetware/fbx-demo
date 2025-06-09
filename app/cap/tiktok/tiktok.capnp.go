@@ -323,6 +323,46 @@ func (c TikTok) Mention(ctx context.Context, params func(TikTok_mention_Params) 
 
 }
 
+func (c TikTok) Comments(ctx context.Context, params func(TikTok_comments_Params) error) (TikTok_comments_Results_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb61751eadcf2ee19,
+			MethodID:      1,
+			InterfaceName: "tiktok.capnp:TikTok",
+			MethodName:    "comments",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 1}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TikTok_comments_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return TikTok_comments_Results_Future{Future: ans.Future()}, release
+
+}
+
+func (c TikTok) Reply(ctx context.Context, params func(TikTok_reply_Params) error) (TikTok_reply_Results_Future, capnp.ReleaseFunc) {
+
+	s := capnp.Send{
+		Method: capnp.Method{
+			InterfaceID:   0xb61751eadcf2ee19,
+			MethodID:      2,
+			InterfaceName: "tiktok.capnp:TikTok",
+			MethodName:    "reply",
+		},
+	}
+	if params != nil {
+		s.ArgsSize = capnp.ObjectSize{DataSize: 0, PointerCount: 3}
+		s.PlaceArgs = func(s capnp.Struct) error { return params(TikTok_reply_Params(s)) }
+	}
+
+	ans, release := capnp.Client(c).SendCall(ctx, s)
+	return TikTok_reply_Results_Future{Future: ans.Future()}, release
+
+}
+
 func (c TikTok) WaitStreaming() error {
 	return capnp.Client(c).WaitStreaming()
 }
@@ -397,6 +437,10 @@ func (c TikTok) GetFlowLimiter() fc.FlowLimiter {
 // A TikTok_Server is a TikTok with a local implementation.
 type TikTok_Server interface {
 	Mention(context.Context, TikTok_mention) error
+
+	Comments(context.Context, TikTok_comments) error
+
+	Reply(context.Context, TikTok_reply) error
 }
 
 // TikTok_NewServer creates a new Server from an implementation of TikTok_Server.
@@ -415,7 +459,7 @@ func TikTok_ServerToClient(s TikTok_Server) TikTok {
 // This can be used to create a more complicated Server.
 func TikTok_Methods(methods []server.Method, s TikTok_Server) []server.Method {
 	if cap(methods) == 0 {
-		methods = make([]server.Method, 0, 1)
+		methods = make([]server.Method, 0, 3)
 	}
 
 	methods = append(methods, server.Method{
@@ -427,6 +471,30 @@ func TikTok_Methods(methods []server.Method, s TikTok_Server) []server.Method {
 		},
 		Impl: func(ctx context.Context, call *server.Call) error {
 			return s.Mention(ctx, TikTok_mention{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb61751eadcf2ee19,
+			MethodID:      1,
+			InterfaceName: "tiktok.capnp:TikTok",
+			MethodName:    "comments",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Comments(ctx, TikTok_comments{call})
+		},
+	})
+
+	methods = append(methods, server.Method{
+		Method: capnp.Method{
+			InterfaceID:   0xb61751eadcf2ee19,
+			MethodID:      2,
+			InterfaceName: "tiktok.capnp:TikTok",
+			MethodName:    "reply",
+		},
+		Impl: func(ctx context.Context, call *server.Call) error {
+			return s.Reply(ctx, TikTok_reply{call})
 		},
 	})
 
@@ -448,6 +516,40 @@ func (c TikTok_mention) Args() TikTok_mention_Params {
 func (c TikTok_mention) AllocResults() (TikTok_mention_Results, error) {
 	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
 	return TikTok_mention_Results(r), err
+}
+
+// TikTok_comments holds the state for a server call to TikTok.comments.
+// See server.Call for documentation.
+type TikTok_comments struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c TikTok_comments) Args() TikTok_comments_Params {
+	return TikTok_comments_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c TikTok_comments) AllocResults() (TikTok_comments_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return TikTok_comments_Results(r), err
+}
+
+// TikTok_reply holds the state for a server call to TikTok.reply.
+// See server.Call for documentation.
+type TikTok_reply struct {
+	*server.Call
+}
+
+// Args returns the call's arguments.
+func (c TikTok_reply) Args() TikTok_reply_Params {
+	return TikTok_reply_Params(c.Call.Args())
+}
+
+// AllocResults allocates the results struct.
+func (c TikTok_reply) AllocResults() (TikTok_reply_Results, error) {
+	r, err := c.Call.AllocResults(capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return TikTok_reply_Results(r), err
 }
 
 // TikTok_List is a list of TikTok.
@@ -615,47 +717,417 @@ func (p TikTok_mention_Results_Future) Comment() Comment_Future {
 	return Comment_Future{Future: p.Future.Field(0, nil)}
 }
 
-const schema_fe4bf44cd2322767 = "x\xda|\x92\xcfk\x13A\x1c\xc5\xdf\x9b\xd9u\x05\x9b" +
-	"\xb6\xc3.\x88\xb9\x14JE\x10,\xfe\xb8\xf5\xd2P\x7f" +
-	"\x94j\xb4\x99\x12A<\x08K\xba\xe8\xb2\xddlH6" +
-	"\xa5\x07K\x14*TP\x10\xaf\"EQ\x0f^\xc4\x8b" +
-	"\x1e\xc4C\x85\x1e\x04O\x05/\"\xfe\x01J\xa5\x88g" +
-	"W&\xb5I\x8c\xe0mv\xf8\xbe\xf7\xf6}\xbes4" +
-	"\xcf\x82u,7\"!\xf4\x98\xbd'\x1bZ\\\x9b\xb5" +
-	".\\~\x06\xe5\x11\xb0\xe9\x00'\x9a\x1c%\xe8.s" +
-	"\x12\xcc\xdeM\x1f\xdc\x9c}P|\x09\x95cv\xf5\xd0" +
-	"\xf1\xcd\xe2\xcfs\xbf`\xdb\x0e\xe0>\xe4s\xf7i[" +
-	"\xf2\x88#\x04\xb3\x03\xdf\x7f|\xfe\xaa\xf7\xbf\x82\xca\xc9" +
-	"\xee0\xe8\xae\x8b\xc7\xee{a4\x1bb\xda\xdd2\xa7" +
-	"l\xfb\xcab\xf0ik\xdf\x9b\x9dh\xcb\xd8|\x14y" +
-	"\xc2\xca^\x7f\xf9\xb0vf{\xee[_\xa64\xfa\xb7" +
-	"\xe2\xbe\xbb\xd1vZ\x17/p$K\xc3(M\xa2\xf1" +
-	"\x8a\xf4k\xd5\xdaD9\x8c\xcaI4\x1e\x07\xd54L" +
-	"\xaacsA\xa3\xe9,\xa4\x0dmI\x0b\xb0\x08\xa8\xdc" +
-	"\x14\xa0\xf7JjO\xb0UIb3\xca\xe1nM\x90" +
-	"\xc3`\xc7\x96m\xdb\x93I<d\x06K\xa4\xf6:V" +
-	"\xcby@/I\xea\x15AEz4\x977\x8d\xffu" +
-	"I\xbd*\xa8\x84\xf0(\x00uk\x02\xd07$\xf5\x1d" +
-	"A%\xa5G\x09\xa8\xdb\x87\x01\xbd\"\xa9\xef\x09*\xcb" +
-	"\xf2h\x01\xea\xae\x91\xafJ\xea'\x822\x9c\xe7\x00\x04" +
-	"\x07\xc0V\x1c\xcc\x87\xfeL\xe7{\xd2o\xa6\xd7\x92:" +
-	"\x87\xbb\xacv~|(\x0d\x96\xd2\x8e\xaa\x1e\xd4\x16\xc2" +
-	"\xa0\xc1A\xb0$\xd9Ws\xf0\x9f\x9a\xe50r\xcaI" +
-	"dZZ\xd2\xeeY\x11w\x9f\x89RS\x10\xcavZ" +
-	"\x7f\x08\x17X\"\xff\xbf\x83\x92_\xf7e\xdc\xe8\x8b\xba" +
-	"\xd8\x08X7A\x03\x1d\x9c\xa7\x0d\xce\x82\xa4.\xf6\xe0" +
-	"\x9c\x19\x05\xf4)I]\xea\xc1y\xfe,\xa0\x8b\x92\xfa" +
-	"\xd2_\x90\x9cf\xf7\x9cU\xc3JT\xf5\xe3\x00\xc0\xee" +
-	"\xdd\xef\x00\x00\x00\xff\xffj\xba\xbb\xc1"
+type TikTok_comments_Params capnp.Struct
+
+// TikTok_comments_Params_TypeID is the unique identifier for the type TikTok_comments_Params.
+const TikTok_comments_Params_TypeID = 0xcd9a6f69958d1fd1
+
+func NewTikTok_comments_Params(s *capnp.Segment) (TikTok_comments_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return TikTok_comments_Params(st), err
+}
+
+func NewRootTikTok_comments_Params(s *capnp.Segment) (TikTok_comments_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return TikTok_comments_Params(st), err
+}
+
+func ReadRootTikTok_comments_Params(msg *capnp.Message) (TikTok_comments_Params, error) {
+	root, err := msg.Root()
+	return TikTok_comments_Params(root.Struct()), err
+}
+
+func (s TikTok_comments_Params) String() string {
+	str, _ := text.Marshal(0xcd9a6f69958d1fd1, capnp.Struct(s))
+	return str
+}
+
+func (s TikTok_comments_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (TikTok_comments_Params) DecodeFromPtr(p capnp.Ptr) TikTok_comments_Params {
+	return TikTok_comments_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s TikTok_comments_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s TikTok_comments_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s TikTok_comments_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s TikTok_comments_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s TikTok_comments_Params) MediaId() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s TikTok_comments_Params) HasMediaId() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s TikTok_comments_Params) MediaIdBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s TikTok_comments_Params) SetMediaId(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+// TikTok_comments_Params_List is a list of TikTok_comments_Params.
+type TikTok_comments_Params_List = capnp.StructList[TikTok_comments_Params]
+
+// NewTikTok_comments_Params creates a new list of TikTok_comments_Params.
+func NewTikTok_comments_Params_List(s *capnp.Segment, sz int32) (TikTok_comments_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[TikTok_comments_Params](l), err
+}
+
+// TikTok_comments_Params_Future is a wrapper for a TikTok_comments_Params promised by a client call.
+type TikTok_comments_Params_Future struct{ *capnp.Future }
+
+func (f TikTok_comments_Params_Future) Struct() (TikTok_comments_Params, error) {
+	p, err := f.Future.Ptr()
+	return TikTok_comments_Params(p.Struct()), err
+}
+
+type TikTok_comments_Results capnp.Struct
+
+// TikTok_comments_Results_TypeID is the unique identifier for the type TikTok_comments_Results.
+const TikTok_comments_Results_TypeID = 0xa63ee95a95524b06
+
+func NewTikTok_comments_Results(s *capnp.Segment) (TikTok_comments_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return TikTok_comments_Results(st), err
+}
+
+func NewRootTikTok_comments_Results(s *capnp.Segment) (TikTok_comments_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1})
+	return TikTok_comments_Results(st), err
+}
+
+func ReadRootTikTok_comments_Results(msg *capnp.Message) (TikTok_comments_Results, error) {
+	root, err := msg.Root()
+	return TikTok_comments_Results(root.Struct()), err
+}
+
+func (s TikTok_comments_Results) String() string {
+	str, _ := text.Marshal(0xa63ee95a95524b06, capnp.Struct(s))
+	return str
+}
+
+func (s TikTok_comments_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (TikTok_comments_Results) DecodeFromPtr(p capnp.Ptr) TikTok_comments_Results {
+	return TikTok_comments_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s TikTok_comments_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s TikTok_comments_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s TikTok_comments_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s TikTok_comments_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s TikTok_comments_Results) Comments() (Comment_List, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return Comment_List(p.List()), err
+}
+
+func (s TikTok_comments_Results) HasComments() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s TikTok_comments_Results) SetComments(v Comment_List) error {
+	return capnp.Struct(s).SetPtr(0, v.ToPtr())
+}
+
+// NewComments sets the comments field to a newly
+// allocated Comment_List, preferring placement in s's segment.
+func (s TikTok_comments_Results) NewComments(n int32) (Comment_List, error) {
+	l, err := NewComment_List(capnp.Struct(s).Segment(), n)
+	if err != nil {
+		return Comment_List{}, err
+	}
+	err = capnp.Struct(s).SetPtr(0, l.ToPtr())
+	return l, err
+}
+
+// TikTok_comments_Results_List is a list of TikTok_comments_Results.
+type TikTok_comments_Results_List = capnp.StructList[TikTok_comments_Results]
+
+// NewTikTok_comments_Results creates a new list of TikTok_comments_Results.
+func NewTikTok_comments_Results_List(s *capnp.Segment, sz int32) (TikTok_comments_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 1}, sz)
+	return capnp.StructList[TikTok_comments_Results](l), err
+}
+
+// TikTok_comments_Results_Future is a wrapper for a TikTok_comments_Results promised by a client call.
+type TikTok_comments_Results_Future struct{ *capnp.Future }
+
+func (f TikTok_comments_Results_Future) Struct() (TikTok_comments_Results, error) {
+	p, err := f.Future.Ptr()
+	return TikTok_comments_Results(p.Struct()), err
+}
+
+type TikTok_reply_Params capnp.Struct
+
+// TikTok_reply_Params_TypeID is the unique identifier for the type TikTok_reply_Params.
+const TikTok_reply_Params_TypeID = 0xa4dfd63ed6456c60
+
+func NewTikTok_reply_Params(s *capnp.Segment) (TikTok_reply_Params, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
+	return TikTok_reply_Params(st), err
+}
+
+func NewRootTikTok_reply_Params(s *capnp.Segment) (TikTok_reply_Params, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3})
+	return TikTok_reply_Params(st), err
+}
+
+func ReadRootTikTok_reply_Params(msg *capnp.Message) (TikTok_reply_Params, error) {
+	root, err := msg.Root()
+	return TikTok_reply_Params(root.Struct()), err
+}
+
+func (s TikTok_reply_Params) String() string {
+	str, _ := text.Marshal(0xa4dfd63ed6456c60, capnp.Struct(s))
+	return str
+}
+
+func (s TikTok_reply_Params) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (TikTok_reply_Params) DecodeFromPtr(p capnp.Ptr) TikTok_reply_Params {
+	return TikTok_reply_Params(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s TikTok_reply_Params) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s TikTok_reply_Params) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s TikTok_reply_Params) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s TikTok_reply_Params) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+func (s TikTok_reply_Params) MediaId() (string, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.Text(), err
+}
+
+func (s TikTok_reply_Params) HasMediaId() bool {
+	return capnp.Struct(s).HasPtr(0)
+}
+
+func (s TikTok_reply_Params) MediaIdBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(0)
+	return p.TextBytes(), err
+}
+
+func (s TikTok_reply_Params) SetMediaId(v string) error {
+	return capnp.Struct(s).SetText(0, v)
+}
+
+func (s TikTok_reply_Params) CommendId() (string, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return p.Text(), err
+}
+
+func (s TikTok_reply_Params) HasCommendId() bool {
+	return capnp.Struct(s).HasPtr(1)
+}
+
+func (s TikTok_reply_Params) CommendIdBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(1)
+	return p.TextBytes(), err
+}
+
+func (s TikTok_reply_Params) SetCommendId(v string) error {
+	return capnp.Struct(s).SetText(1, v)
+}
+
+func (s TikTok_reply_Params) Response() (string, error) {
+	p, err := capnp.Struct(s).Ptr(2)
+	return p.Text(), err
+}
+
+func (s TikTok_reply_Params) HasResponse() bool {
+	return capnp.Struct(s).HasPtr(2)
+}
+
+func (s TikTok_reply_Params) ResponseBytes() ([]byte, error) {
+	p, err := capnp.Struct(s).Ptr(2)
+	return p.TextBytes(), err
+}
+
+func (s TikTok_reply_Params) SetResponse(v string) error {
+	return capnp.Struct(s).SetText(2, v)
+}
+
+// TikTok_reply_Params_List is a list of TikTok_reply_Params.
+type TikTok_reply_Params_List = capnp.StructList[TikTok_reply_Params]
+
+// NewTikTok_reply_Params creates a new list of TikTok_reply_Params.
+func NewTikTok_reply_Params_List(s *capnp.Segment, sz int32) (TikTok_reply_Params_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 3}, sz)
+	return capnp.StructList[TikTok_reply_Params](l), err
+}
+
+// TikTok_reply_Params_Future is a wrapper for a TikTok_reply_Params promised by a client call.
+type TikTok_reply_Params_Future struct{ *capnp.Future }
+
+func (f TikTok_reply_Params_Future) Struct() (TikTok_reply_Params, error) {
+	p, err := f.Future.Ptr()
+	return TikTok_reply_Params(p.Struct()), err
+}
+
+type TikTok_reply_Results capnp.Struct
+
+// TikTok_reply_Results_TypeID is the unique identifier for the type TikTok_reply_Results.
+const TikTok_reply_Results_TypeID = 0x98e486f48f58747e
+
+func NewTikTok_reply_Results(s *capnp.Segment) (TikTok_reply_Results, error) {
+	st, err := capnp.NewStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return TikTok_reply_Results(st), err
+}
+
+func NewRootTikTok_reply_Results(s *capnp.Segment) (TikTok_reply_Results, error) {
+	st, err := capnp.NewRootStruct(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0})
+	return TikTok_reply_Results(st), err
+}
+
+func ReadRootTikTok_reply_Results(msg *capnp.Message) (TikTok_reply_Results, error) {
+	root, err := msg.Root()
+	return TikTok_reply_Results(root.Struct()), err
+}
+
+func (s TikTok_reply_Results) String() string {
+	str, _ := text.Marshal(0x98e486f48f58747e, capnp.Struct(s))
+	return str
+}
+
+func (s TikTok_reply_Results) EncodeAsPtr(seg *capnp.Segment) capnp.Ptr {
+	return capnp.Struct(s).EncodeAsPtr(seg)
+}
+
+func (TikTok_reply_Results) DecodeFromPtr(p capnp.Ptr) TikTok_reply_Results {
+	return TikTok_reply_Results(capnp.Struct{}.DecodeFromPtr(p))
+}
+
+func (s TikTok_reply_Results) ToPtr() capnp.Ptr {
+	return capnp.Struct(s).ToPtr()
+}
+func (s TikTok_reply_Results) IsValid() bool {
+	return capnp.Struct(s).IsValid()
+}
+
+func (s TikTok_reply_Results) Message() *capnp.Message {
+	return capnp.Struct(s).Message()
+}
+
+func (s TikTok_reply_Results) Segment() *capnp.Segment {
+	return capnp.Struct(s).Segment()
+}
+
+// TikTok_reply_Results_List is a list of TikTok_reply_Results.
+type TikTok_reply_Results_List = capnp.StructList[TikTok_reply_Results]
+
+// NewTikTok_reply_Results creates a new list of TikTok_reply_Results.
+func NewTikTok_reply_Results_List(s *capnp.Segment, sz int32) (TikTok_reply_Results_List, error) {
+	l, err := capnp.NewCompositeList(s, capnp.ObjectSize{DataSize: 0, PointerCount: 0}, sz)
+	return capnp.StructList[TikTok_reply_Results](l), err
+}
+
+// TikTok_reply_Results_Future is a wrapper for a TikTok_reply_Results promised by a client call.
+type TikTok_reply_Results_Future struct{ *capnp.Future }
+
+func (f TikTok_reply_Results_Future) Struct() (TikTok_reply_Results, error) {
+	p, err := f.Future.Ptr()
+	return TikTok_reply_Results(p.Struct()), err
+}
+
+const schema_fe4bf44cd2322767 = "x\xda\x84SAh\x13[\x14\xbd\xf7\xbd\x97\xce\xe7\xff" +
+	"\xe4\xa7\xcf\x89H\x0bR,\x16\xa5`\xb1\xd5\x8d\x05\xdb" +
+	"X\x8d\xda6\xda\xbc\x10\xa1\x14\x11\x87v\xd0!\x99L" +
+	"\xc8LJ\x055\x0aU*X\x14\xa1 \xba(Hu" +
+	"\xe1\xa6\xb8\xa8\"\xd2\x8d\x08nta\x17]\x88\xe8\xc6" +
+	"\x8d\x8aR\xa5\x1b7\x8e\xbc\xa4\x99LB\xb5\xbb\xe1\xcd" +
+	"\xb9\xf7\x9e{\xce\xb9\xbb_`\x94u\x86\x8a\x0c\x88\xd8" +
+	"\x1bhp/:\xc37V\xaf~\xbc\x0d<\x82\x00L" +
+	"\x01\xd8\xd3F6!0\xf7t&\xb6\xdc\xb3\xfca\xae" +
+	"\xfc'@\xe5\xaf\x10\xf9\x17\x01\xd5\xcdd\x1e\xd0m\x18" +
+	"L\xce\x8c|\xeay\xb0\x06@\x09X \xed\x12\xb0H" +
+	"z\x01\xdd\xf0\xf8\xec\x10;>R\x03\xf8NZ%\xe0" +
+	"g\x09\xf0\xfcH\xdb\xd2\xd0\xdd\xf8#\xe0!t\xcf\xec" +
+	"\xe8Z\x8a\xaf\x0e\xfe\x82@@\x01P\x9b\xe8Cu[" +
+	"i\xe8V\xda\x82\x80n\xd3\xb7\x1f\xef>\x8b-\x8f\x81" +
+	"\x87h\x15\x0c\xa8\xeeg\xf7\xd4\x98d\xae\x1e`/\xd5" +
+	"E\xf9\xe5\xae\x9c\x1a\xd7\xdf~\xfd\xef\x99o\xad\xfb\xac" +
+	"Y\xae\xf5\xa6ez\xc6\xb0\xee\xbc\xf6\x93\x9af%R" +
+	"3L\x92z\xf2\xfe\xd5\xec\xe1\x95\xe4\x97:R\x92\x8a" +
+	"\xba\xc0n\x95\x07\xa8O\xd9<\xecr\x1d#\xedX\xe9" +
+	"\x8eQ\xaa\xe5\xb2\xb9\xee\x94\x91NY\xe9\x8e\xbc\x9e\xcb" +
+	"\x9c\xdb\x9e\xd4\xedB\xc6A\xfbo\x98\x84\x96\xd7L\x1b" +
+	"@\x04)\x03`\x08\xc0c}\x00\"JQ\xc4\x09r" +
+	"\xc4\x08\xca\xc7\xfe$\x808JQ\xa4\x08rB\"H" +
+	"\x00\xb8\x18\x00\x10\x09\x8a\xe2$\xc1\xa2\xa9\x8f\x19Z\xff" +
+	"\x18\x06\x81`\x10\xd0\x1d\xb5LS\xcf\x8e\xf5\x03V\xdf" +
+	"\xf2\xba\x9d\xb3\xb2\xb6\x0e\x00\xde\xdb\xba\xe4\xca\xc5\x8e-" +
+	"w\x08\x172\x8e-\x98\xc7/4P\xa2\x8bb'\xa9" +
+	"Lql\xd9\xf1\x7f\xc0\x04El\xac\x9a\x0a(\x1f\xd7" +
+	"\x1f!\xcb\x0c+[RI\xa9\x9b \x15\xf8\x87\xa2\x88" +
+	"\x10,\xaeM\xa8k\xdb\xe8k\x8b\xa5\xb6\x07-3," +
+	"\x81\x09D\x11\xf1Z]h\x06\x10\x13\x14\xc5\xa4O\xcc" +
+	"\xcb\xb2\xffy\x8ab\xca'\xe6\x95n\x00q\x89\xa2\xb8" +
+	"N\x90S\x1aA\x0a\xc0\xaf\xb5\x03\x88I\x8a\xe2&A" +
+	"\xceX\x04\x19\x00\x9f\x96\xe5S\x14\xc5\x1cAjx\xea" +
+	"\xd6;\xd0\xab\x15\x9c\xb3V\x1e\x1b\xaby*\x13\x0f;" +
+	"\xfa\x84\xe3U\xc9\x1c\x18\xba\xbd\xb1zXQOIY" +
+	"i\xb9e\x90\x06|9\xc7\xca\xadq\xd1\x07\x84\xc7\x14" +
+	"D/\xe9X9T\xbeo\x00\x08\xefT\x90x\xc7\x8d" +
+	"\x95\xfb\xe7m]@x\x93R\\s&Z\xe3n\x14" +
+	"[J\x89\x8db\x027pTf\x9a\x9a\xf6\x06\xc9J" +
+	"hyE3\xffh{}\x9ckU8a\xeb\x98/" +
+	"k\xe0\x9dM\xf3zg\xd3\x0a \x0eQ\x14\x09\x9f\xd3" +
+	"\xc7d\x80\xe3\x14\xc5p\x8d\x7fJ\xa1\xfa\xedf\x8d\xd1" +
+	"tV3\xfd\x97\xf2;\x00\x00\xff\xffs&N\x8e"
 
 func RegisterSchema(reg *schemas.Registry) {
 	reg.Register(&schemas.Schema{
 		String: schema_fe4bf44cd2322767,
 		Nodes: []uint64{
+			0x98e486f48f58747e,
+			0xa4dfd63ed6456c60,
+			0xa63ee95a95524b06,
 			0xa65a4e044f9f760f,
 			0xb14c9b4fd22547c2,
 			0xb61751eadcf2ee19,
 			0xbb0bedda65765ef0,
+			0xcd9a6f69958d1fd1,
 			0xeb52f0469fccdeb7,
 		},
 		Compressed: true,
