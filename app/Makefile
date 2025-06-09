@@ -1,4 +1,4 @@
-.PHONY: all build build-arm clean gen install
+.PHONY: all clean gen build
 
 FLAGS := CGO_ENABLED=0
 
@@ -6,13 +6,15 @@ HEADER_FILE := cap/header.txt
 SRC_FILE := ../tiktok/api/cap/tiktok.capnp
 CAP_FILE := cap/tiktok.capnp
 
-all: clean build
+all: clean update-cap build
 
-build:
+gen:
 	cat ${HEADER_FILE} ${SRC_FILE} > ${CAP_FILE}
 	go generate ./...
-	env ${FLAGS} go build .
 	rm -f ${CAP_FILE}
+
+build:
+	go build -o app .
 
 clean:
 	rm -f ${CAP_FILE}
