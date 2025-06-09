@@ -92,7 +92,6 @@ class TikApiClient(TikTokClient):
         except ResponseException as e:
             logger.error(f"{media_id}:{comment_id}: Response error: {e} - {e.response.status_code}")
 
-
     async def fetch_mentions(self):
         logger.info("Fetching mentions from TikTok.")
         try:
@@ -143,15 +142,14 @@ def parse_comments(comments: APIResponse) -> List[Comment]:
     parsed_comments: List[Comment] = [
         Comment(
             author=User(
-                id=comment["user"]["unique_id"],
-                uid=comment["user"]["uid"],
-                nickname=comment["user"]["nickname"],
+                id=comment["user"]["unique_id"], uid=comment["user"]["uid"], nickname=comment["user"]["nickname"]
             ),
             id=comment["cid"],
             media_id=comment["aweme_id"],  # TODO mikel: validate this field is media_id
             text=comment["text"],
             replies=[],
-        ) for comment in comments.json()["comments"]
+        )
+        for comment in comments.json()["comments"]
     ]
     return parsed_comments
 
@@ -159,6 +157,7 @@ def parse_comments(comments: APIResponse) -> List[Comment]:
 if __name__ == "__main__":
     import asyncio
     from sys import argv
+
     cli = TikApiClient()
     result = asyncio.run(cli.fetch_comments(argv[1]))
     logger.info(result)
