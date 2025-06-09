@@ -1,11 +1,28 @@
 services:
+  app:
+    image: wetware/fbx-demo-wetware
+    container_name: fbx-demo-app
+    network_mode: host
+    environment:
+      - TIKTOK_HOST=tiktok-api
+      - TIKTOK_PORT=6060
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
+    restart: no
+    tty: true
+    privileged: true
+    working_dir: /app
+    command: /app
+    depends_on:
+      - tiktok
+      - wetware
+
   wetware:
-    image: wetware/fbx-demo
+    image: wetware/fbx-demo-wetware
     container_name: wetware
     network_mode: host
     volumes:
-      # Wetware-specific
-      # TODO: copy WASM file to container
       # Dstack-specific
       - /var/run/tappd.sock:/var/run/tappd.sock
       - ${DSTACK_SOCKET}:/var/run/dstack.sock
@@ -13,9 +30,9 @@ services:
     environment:
       - DSTACK_SIMULATOR_ENDPOINT=/var/run/dstack.sock
       - DEBUG=true
-    # cap_add:
-    #   - NET_ADMIN
-    #   - NET_RAW
+    cap_add:
+      - NET_ADMIN
+      - NET_RAW
     restart: no
     # stdin_open: true
     tty: true
