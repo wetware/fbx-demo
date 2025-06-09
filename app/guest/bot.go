@@ -1,4 +1,3 @@
-//go:generate env GOOS=wasip1 GOARCH=wasm go build -o bot.wasm bot.go
 package main
 
 import (
