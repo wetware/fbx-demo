@@ -2,11 +2,12 @@
 
 all: build run
 
-build: build-dstack build-tiktok build-wetware
+build: build-dstack build-app build-wetware build-tiktok
 
 build-app:
 	cd app && \
-		make
+		make gen
+	docker build -t wetware/fbx-demo-app app
 
 build-tiktok:
 	docker build -t tikapi/tikapi tiktok
@@ -15,10 +16,11 @@ build-wetware:
 	# phala docker build -i fbx-demo -t latest .
 	cd wetware && \
 		make
-	docker build -t wetware/fbx-demo wetware
+	docker build -t wetware/fbx-demo-wetware wetware
 
 build-dstack:
-	cd dstack/sdk/simulator && \
+	alias git="git -c url.\"https://github.com/".insteadOf=git@github.com:\" && \
+    cd dstack/sdk/simulator && \
 		./build.sh
 
 clean: clean-app stop-dstack
