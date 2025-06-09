@@ -23,6 +23,7 @@ func (b bot) runLoop(ctx context.Context) error {
 		}
 
 		// Get the next mention
+		fmt.Println("Getting mention...")
 		m, err := b.getMention(ctx)
 		if err != nil {
 			if errors.Is(err, errNoComment) {
@@ -37,9 +38,11 @@ func (b bot) runLoop(ctx context.Context) error {
 		if err != nil {
 			return fmt.Errorf("Error unmarshaling comment: %w", err)
 		}
+		fmt.Printf("Got mention %v\n", mention)
 
 		// Get additional context for the mention.
 		// In this case, the rest of the comments in the post.
+		fmt.Println("Getting comments...")
 		cs, err := b.getComments(ctx, mention.mediaId)
 		if err != nil {
 			if errors.Is(err, errNoComments) {
@@ -59,15 +62,19 @@ func (b bot) runLoop(ctx context.Context) error {
 			comments[i] = comment
 		}
 
+		fmt.Printf("Got comments %v", comments)
+
 		// Call the LLM model
 		// TODO mikel: add LLM capability. Modify the text for now.
 		reply := fmt.Sprintf("%s in bed", mention.text)
 
 		// Send the reply to the user
+		fmt.Println("Replying to comment...")
 		err = b.replyToComment(ctx, mention, reply)
 		if err != nil {
 			return fmt.Errorf("Error replying to comment: %w", err)
 		}
+		fmt.Printf("Replied `%s` to comment", reply)
 
 		// Sanity sleep, don't burn through our API tokens accidentally...
 		time.Sleep(30 * time.Second)

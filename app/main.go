@@ -38,8 +38,12 @@ func main() {
 		os.Exit(1)
 	}
 
+	fmt.Println("Dialed TikTok service.")
+
 	conn := rpc.NewConn(rpc.NewStreamTransport(tcpConn), nil)
 	defer conn.Close()
+
+	fmt.Println("Created RPC transport over dialed connection.")
 
 	tt := tiktok.TikTok(conn.Bootstrap(ctx))
 	// Validate TikTok provider.
@@ -47,6 +51,8 @@ func main() {
 		slog.Error(fmt.Sprintf("Failed to resolve TikTok provider: %s", err))
 		os.Exit(1)
 	}
+
+	fmt.Println("Resolved TikTok capability.")
 
 	// Connect to Wetware cluster.
 	wwClient, err := ww.InitClient(ctx, namespace, os.Stdin, os.Stdout, os.Stderr)

@@ -26,7 +26,7 @@ func main() {
 	}()
 
 	if len(caps) == 0 {
-		fmt.Println("No capabilities found in bootstrap")
+		fmt.Println("No capabilities found in bootstrap.")
 		os.Exit(1)
 	}
 
@@ -34,6 +34,8 @@ func main() {
 	if err := tt.Resolve(ctx); err != nil {
 		panic(err)
 	}
+
+	fmt.Println("Bootstrapped TikTok capability.")
 
 	bot := bot{
 		tt: tt,
