@@ -79,6 +79,8 @@ github.com/tetratelabs/wazero v1.9.0 h1:IcZ56OuxrtaEz8UYNRHBrUa9bYeX9oVY93KspZZB
 github.com/tetratelabs/wazero v1.9.0/go.mod h1:TSbcXCfFP0L2FGkRPxHphadXPjo1T6W+CseNNY7EkjM=
 github.com/wetware/pkg v0.1.0-alpha.1.0.20250608212919-b1a26d593652 h1:E8yOaeoqk1oKITE1JB/CfHWHawkngHgtTnILObJEGLM=
 github.com/wetware/pkg v0.1.0-alpha.1.0.20250608212919-b1a26d593652/go.mod h1:KyHzZGH7mChQn35fWTXJoZvd8AezGA6uVWlsAyTVfXo=
+github.com/wetware/pkg v0.1.0-alpha.1.0.20250609163006-ba1184f91859 h1:AvMxrG0zNq2+5/HlZnfeGCvNn0XsMg+94GX6Q3BoSmY=
+github.com/wetware/pkg v0.1.0-alpha.1.0.20250609163006-ba1184f91859/go.mod h1:KyHzZGH7mChQn35fWTXJoZvd8AezGA6uVWlsAyTVfXo=
 github.com/yuin/goldmark v1.1.27/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 github.com/yuin/goldmark v1.2.1/go.mod h1:3hX8gzYuyVAZsxl0MRgGTJEmQBFcNTphYh9decYSb74=
 go.uber.org/multierr v1.11.0 h1:blXXJkSxSSfBVBlC76pxqeO+LN3aDfLQo+309xJstO0=

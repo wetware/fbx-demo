@@ -36,7 +36,7 @@ require (
 	github.com/spaolacci/murmur3 v1.1.0 // indirect
 	github.com/stealthrocket/wazergo v0.19.1 // indirect
 	github.com/tetratelabs/wazero v1.9.0 // indirect
-	github.com/wetware/pkg v0.1.0-alpha.1.0.20250608212919-b1a26d593652 // indirect
+	github.com/wetware/pkg v0.1.0-alpha.1.0.20250609163006-ba1184f91859 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.uber.org/zap v1.27.0 // indirect
 	golang.org/x/crypto v0.39.0 // indirect
