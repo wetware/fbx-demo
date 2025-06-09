@@ -12,7 +12,8 @@ import (
 )
 
 func main() {
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	caps, releases, err := ww.Bootstrap(ctx)
 	if err != nil {
