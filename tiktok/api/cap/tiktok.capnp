@@ -20,8 +20,10 @@ struct Comment {
 interface TikTok {
     # Get a comment mentioning the current user.
     mention @0 () -> (comment :Comment);
+    # Get every comment on a video.
+    comments @1 (mediaId :Text) -> (comments :List(Comment));
     # Reply to a mention with the specified ID.
-    # reply @1 (mediaId :Text, commendId: Text, response :Text) -> ();
+    reply @2 (mediaId :Text, commendId: Text, response :Text) -> ();
 }
 
 # Alternative design: create an Object capability and reply by interacting directly with the object.
