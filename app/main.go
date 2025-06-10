@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
 	"log/slog"
 	"net"
@@ -22,7 +23,7 @@ const (
 	tiktokPort = "TIKTOK_PORT"
 )
 
-// go:embed guest/bot.wasm
+//go:embed guest/bot.wasm
 var bytecode []byte
 
 func main() {
