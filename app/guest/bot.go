@@ -46,7 +46,7 @@ func (b bot) runLoop(ctx context.Context) error {
 		// Get additional context for the mention.
 		// In this case, the rest of the comments in the post.
 		fmt.Println("Getting comments...")
-		cs, err := b.getComments(ctx, mention.mediaId)
+		cs, release, err := b.getComments(ctx, mention.mediaId)
 		if err != nil {
 			if errors.Is(err, errNoComments) {
 				fmt.Printf("No additional comments found in post %s\n", mention.mediaId)
@@ -55,6 +55,7 @@ func (b bot) runLoop(ctx context.Context) error {
 				return fmt.Errorf("Error getting comments: %w", err)
 			}
 		}
+		defer release()
 
 		comments := make([]comment, len(cs))
 		for i, c := range cs {
@@ -113,33 +114,33 @@ func (b bot) getMention(ctx context.Context) (tiktok.Comment, capnp.ReleaseFunc,
 	return comment, release, nil
 }
 
-func (b bot) getComments(ctx context.Context, mediaId string) ([]tiktok.Comment, error) {
+func (b bot) getComments(ctx context.Context, mediaId string) ([]tiktok.Comment, capnp.ReleaseFunc, error) {
 	f, release := b.tt.Comments(ctx, func(tt tiktok.TikTok_comments_Params) error {
 		return tt.SetMediaId(mediaId)
 	})
-	defer release()
 
 	select {
 	case <-ctx.Done():
+		release()
+		return nil, nil, ctx.Err()
 	case <-f.Done():
-	}
-
-	if ctx.Err() != nil {
-		return nil, ctx.Err()
 	}
 
 	res, err := f.Struct()
 	if err != nil {
-		return nil, err
+		release()
+		return nil, nil, err
 	}
 
 	if !res.HasComments() {
-		return nil, errNoComments
+		release()
+		return nil, nil, errNoComments
 	}
 
 	cl, err := res.Comments()
 	if err != nil {
-		return nil, err
+		release()
+		return nil, nil, err
 	}
 
 	comments := make([]tiktok.Comment, cl.Len())
@@ -147,7 +148,7 @@ func (b bot) getComments(ctx context.Context, mediaId string) ([]tiktok.Comment,
 		comments[i] = cl.At(i)
 	}
 
-	return comments, nil
+	return comments, release, nil
 }
 
 func (b bot) replyToComment(ctx context.Context, source comment, reply string) error {
