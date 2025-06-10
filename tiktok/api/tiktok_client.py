@@ -34,7 +34,7 @@ class TikTokClient(ABC):
         pass
 
     @abstractmethod
-    async def get_comments(self, media_id: str) -> List[Comment]:
+    async def get_comments(self, mediaId: str) -> List[Comment]:
         pass
 
     @abstractmethod
@@ -47,7 +47,7 @@ class TikTokMockClient(TikTokClient):
         logger.info("[mock] Getting mention")
         return SAMPLE_COMMENT.cap()
 
-    async def get_comments(self, media_id: str) -> List[Comment]:
+    async def get_comments(self, mediaId: str) -> List[Comment]:
         logger.info("[mock] Getting comments")
         return [SAMPLE_COMMENT.cap(), SAMPLE_COMMENT.cap()]
 
@@ -79,9 +79,9 @@ class TikApiClient(TikTokClient):
             # TODO: case in which no new mentions are fetched
         return await self.mention_queue.get()
 
-    async def get_comments(self, media_id: str) -> List[Comment]:
+    async def get_comments(self, mediaId: str) -> List[Comment]:
         logger.info("Getting comments")
-        return await self.fetch_comments(media_id)
+        return await self.fetch_comments(mediaId)
 
     async def reply(self, media_id: str, comment_id: str, text: str):
         try:
@@ -103,10 +103,10 @@ class TikApiClient(TikTokClient):
         except Exception as e:
             logger.error(f"Error fetching mentions: {e}")
 
-    async def fetch_comments(self, media_id: str) -> List[Comment]:
+    async def fetch_comments(self, mediaId: str) -> List[Comment]:
         logger.info("Fetching comments from TikTok.")
         try:
-            response = self.user.posts.comments.list(media_id=media_id)
+            response = self.user.posts.comments.list(media_id=mediaId)
             return parse_comments(response)
         except Exception as e:
             logger.error(f"Error fetching comments: {e}")
