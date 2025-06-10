@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"time"
 
+	"capnproto.org/go/capnp/v3"
 	"github.com/wetware/fbx-demo/app/cap/tiktok"
 )
 
@@ -24,7 +25,7 @@ func (b bot) runLoop(ctx context.Context) error {
 
 		// Get the next mention
 		fmt.Println("Getting mention...")
-		m, err := b.getMention(ctx)
+		m, release, err := b.getMention(ctx)
 		if err != nil {
 			if errors.Is(err, errNoComment) {
 				fmt.Println("No comment found, waiting 5s before retrying")
@@ -34,6 +35,8 @@ func (b bot) runLoop(ctx context.Context) error {
 				return fmt.Errorf("Error getting mention: %w", err)
 			}
 		}
+		defer release()
+
 		mention, err := unmarshalComment(m)
 		if err != nil {
 			return fmt.Errorf("Error unmarshaling comment: %w", err)
@@ -81,26 +84,33 @@ func (b bot) runLoop(ctx context.Context) error {
 	}
 }
 
-func (b bot) getMention(ctx context.Context) (tiktok.Comment, error) {
+func (b bot) getMention(ctx context.Context) (tiktok.Comment, capnp.ReleaseFunc, error) {
 	f, release := b.tt.Mention(ctx, nil)
-	defer release()
 	select {
 	case <-ctx.Done():
+		release()
+		return tiktok.Comment{}, nil, ctx.Err()
 	case <-f.Done():
-	}
-	if ctx.Err() != nil {
-		return tiktok.Comment{}, ctx.Err()
 	}
 
 	res, err := f.Struct()
 	if err != nil {
-		return tiktok.Comment{}, err
+		release()
+		return tiktok.Comment{}, nil, err
 	}
 
 	if !res.HasComment() {
-		return tiktok.Comment{}, errNoComment
+		release()
+		return tiktok.Comment{}, nil, errNoComment
 	}
-	return res.Comment()
+
+	comment, err := res.Comment()
+	if err != nil {
+		release()
+		return tiktok.Comment{}, nil, err
+	}
+
+	return comment, release, nil
 }
 
 func (b bot) getComments(ctx context.Context, mediaId string) ([]tiktok.Comment, error) {
