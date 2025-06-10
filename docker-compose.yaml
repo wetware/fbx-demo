@@ -28,9 +28,12 @@ services:
       - multicast_network
     volumes:
       # Dstack-specific
-      - /var/run/tappd.sock:/var/run/tappd.sock
-      - ${DSTACK_SOCKET}:/var/run/dstack.sock
-      - ${TAPPD_SOCKET}:/var/run/tappd.sock
+      - type: bind
+        source: ${TAPPD_SOCKET}
+        target: /var/run/tappd.sock
+      - type: bind
+        source: ${DSTACK_SOCKET}
+        target: /var/run/dstack.sock
     environment:
       - DSTACK_SIMULATOR_ENDPOINT=/var/run/dstack.sock
       - DEBUG=true
