@@ -15,7 +15,7 @@ WASM guest processes that can only reach outside their Sandbox through Object Ca
   - `host`: A simple Go program that connects to a Wetware node, bootstraps the TikTok object capability, and starts the bot process (`guest`) on that node with that capability.
 * `tiktok`: a service receiving TikTok notifications, sending them with some context to a bot, and posting the bot's replies. The service is using TikApi,
 because [the suggested alternative](https://github.com/davidteather/TikTok-Api) does not provide the notification or tagging functionality
-described in the document.
+described in the document. It's a simple program that wraps TikAPI calls in Object Capability methods and exposes them through a TCP port.
 
 ## Setup
 
