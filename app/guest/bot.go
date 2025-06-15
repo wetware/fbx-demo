@@ -68,7 +68,7 @@ func (b bot) runLoop(ctx context.Context) error {
 			comments[i] = comment
 		}
 
-		fmt.Printf("Got comments %v", comments)
+		fmt.Printf("Got comments %v\n", comments)
 
 		// Call the LLM model. For the time being we are only passing the text.
 		mentionContext := make([]string, len(comments))
@@ -118,7 +118,7 @@ func (b bot) generateReply(ctx context.Context, mention string, mentionContext [
 		return "", err
 	}
 
-	return res.String(), nil
+	return res.Output()
 }
 
 func (b bot) getMention(ctx context.Context) (tiktok.Comment, capnp.ReleaseFunc, error) {
