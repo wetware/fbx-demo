@@ -8,14 +8,16 @@
 This demo app consists of a TikTok reply bot split into four services:
 
 * `dstack`: Running on the host machine. The rest of services run on Docker.
-* `wetware`: our [Wetware](https://github.com/wetware/pkg) platform running on the TDX emulator. The service will be running Wetware processes:
+* `wetware`: Our [Wetware](https://github.com/wetware/pkg) platform running on the TDX emulator. The service will be running Wetware processes:
 WASM guest processes that can only reach outside their Sandbox through Object Capabilities.
 * `app`:
   - `guest`: The TikTok bot running on Wetware with a TikTok [object capability](https://capnproto.org/). The app is written in Go and compiled to WASM.
   - `host`: A simple Go program that connects to a Wetware node, bootstraps the TikTok object capability, and starts the bot process (`guest`) on that node with that capability.
-* `tiktok`: a service receiving TikTok notifications, sending them with some context to a bot, and posting the bot's replies. The service is using TikApi,
+* `tiktok`: A service receiving TikTok notifications, sending them with some context to a bot, and posting the bot's replies. The service is using TikApi,
 because [the suggested alternative](https://github.com/davidteather/TikTok-Api) does not provide the notification or tagging functionality
 described in the document. It's a simple program that wraps TikAPI calls in Object Capability methods and exposes them through a TCP port.
+* `ollama`: Ollama server running in a container. The start script downloads phi3:mini by default.
+* `llm`: A service exposing the LLM capabilities of Ollama through Cap'n Proto.
 
 ## Setup
 
