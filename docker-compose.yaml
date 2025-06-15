@@ -67,6 +67,23 @@ services:
     # command: sh -c "python -m tiktok.api.tiktok_client 7511959726389857558"
     restart: no
 
+  ollama:
+    image: ollama/ollama
+    ports:
+      - "11434:11434"
+    networks:
+      - multicast_network
+    volumes:
+      - ollama:/root/.ollama
+      - ./ollama/start.sh:/start.sh
+    healthcheck:
+      test: ["CMD", "test", "-f", "/tmp/ready"]
+      interval: 2s
+      timeout: 1s
+      retries: 300 # The init script can take a while the first time it's run
+      start_period: 2s
+    entrypoint: ["/bin/sh", "/start.sh"]
+    restart: no
 networks:
   multicast_network:
     driver: bridge
