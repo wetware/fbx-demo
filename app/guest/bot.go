@@ -7,11 +7,13 @@ import (
 	"time"
 
 	"capnproto.org/go/capnp/v3"
+	"github.com/wetware/fbx-demo/app/cap/llm"
 	"github.com/wetware/fbx-demo/app/cap/tiktok"
 )
 
 type bot struct {
-	tt tiktok.TikTok
+	model llm.LLM
+	tt    tiktok.TikTok
 }
 
 func (b bot) runLoop(ctx context.Context) error {
@@ -68,9 +70,15 @@ func (b bot) runLoop(ctx context.Context) error {
 
 		fmt.Printf("Got comments %v", comments)
 
-		// Call the LLM model
-		// TODO mikel: add LLM capability. Modify the text for now.
-		reply := fmt.Sprintf("%s in bed", mention.text)
+		// Call the LLM model. For the time being we are only passing the text.
+		mentionContext := make([]string, len(comments))
+		for i, comment := range comments {
+			mentionContext[i] = comment.text
+		}
+		reply, err := b.generateReply(ctx, mention.text, mentionContext)
+		if err != nil {
+			return fmt.Errorf("Error generating reply: %w", err)
+		}
 
 		// Send the reply to the user
 		fmt.Println("Replying to comment...")
@@ -83,6 +91,34 @@ func (b bot) runLoop(ctx context.Context) error {
 		// Sanity sleep, don't burn through our API tokens accidentally...
 		time.Sleep(30 * time.Second)
 	}
+}
+
+func (b bot) generateReply(ctx context.Context, mention string, mentionContext []string) (string, error) {
+	in, err := marshalInput(input{
+		mention: mention,
+		context: mentionContext,
+	})
+	if err != nil {
+		return "", err
+	}
+
+	f, release := b.model.GenerateResponse(ctx, func(params llm.LLM_generateResponse_Params) error {
+		return params.SetInput(in)
+	})
+	defer release()
+
+	select {
+	case <-ctx.Done():
+		return "", ctx.Err()
+	case <-f.Done():
+	}
+
+	res, err := f.Struct()
+	if err != nil {
+		return "", err
+	}
+
+	return res.String(), nil
 }
 
 func (b bot) getMention(ctx context.Context) (tiktok.Comment, capnp.ReleaseFunc, error) {

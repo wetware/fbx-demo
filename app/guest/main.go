@@ -1,4 +1,4 @@
-//go:generate env GOOS=wasip1 GOARCH=wasm go build -o bot.wasm main.go bot.go errs.go models.go
+//go:generate env GOOS=wasip1 GOARCH=wasm go build -o bot.wasm main.go bot.go errs.go models_llm.go models_tiktok.go
 package main
 
 import (
@@ -8,6 +8,7 @@ import (
 
 	ww "github.com/wetware/pkg/guest/system"
 
+	"github.com/wetware/fbx-demo/app/cap/llm"
 	"github.com/wetware/fbx-demo/app/cap/tiktok"
 )
 
@@ -25,12 +26,19 @@ func main() {
 		}
 	}()
 
-	if len(caps) == 0 {
-		fmt.Println("No capabilities found in bootstrap.")
+	if len(caps) < 2 {
+		fmt.Println("Not enough capabilities found in bootstrap.")
 		os.Exit(1)
 	}
 
-	tt := tiktok.TikTok(caps[0])
+	model := llm.LLM(caps[0])
+	if err := model.Resolve(ctx); err != nil {
+		panic(err)
+	}
+
+	fmt.Println("Bootstrapped LLM capability.")
+
+	tt := tiktok.TikTok(caps[1])
 	if err := tt.Resolve(ctx); err != nil {
 		panic(err)
 	}
@@ -38,7 +46,8 @@ func main() {
 	fmt.Println("Bootstrapped TikTok capability.")
 
 	bot := bot{
-		tt: tt,
+		model: model,
+		tt:    tt,
 	}
 	err = bot.runLoop(ctx)
 	if err != nil {
