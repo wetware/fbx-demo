@@ -1,5 +1,3 @@
-.PHONY: all clean build run run-docker start-dstack stop-dstack
-
 all: build run
 
 build: build-dstack build-app build-wetware build-tiktok
@@ -8,6 +6,11 @@ build-app:
 	cd app && \
 		make gen
 	docker build -t wetware/fbx-demo-app app
+
+build-llm:
+	cd llm && \
+		make gen
+	docker build -t wetware/fbx-demo-llm llm
 
 build-tiktok:
 	docker build -t tikapi/tikapi tiktok
@@ -23,10 +26,14 @@ build-dstack:
     cd dstack/sdk/simulator && \
 		./build.sh
 
-clean: clean-app stop-dstack
+clean: clean-app clean-llm stop-dstack
 
 clean-app:
 	cd app && \
+	make clean
+
+clean-llm:
+	cd llm && \
 	make clean
 
 start-dstack:
