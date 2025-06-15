@@ -49,7 +49,7 @@ services:
 
   tiktok:
     image: tikapi/tikapi
-    container_name: tikapi
+    container_name: tiktok
     # network_mode: host
     networks:
       - multicast_network
@@ -60,6 +60,8 @@ services:
       - ACCOUNT_KEY=${ACCOUNT_KEY}
       - TIKTOK_HOST=${TIKTOK_HOST}
       - TIKTOK_PORT=${TIKTOK_PORT}
+    volumes:
+      - ./caps/tiktok.capnp:/tiktok/api/cap/tiktok.capnp
     working_dir: /
     command: python -m tiktok.api.server
     # The command bellow is used to test the pycapnp library
