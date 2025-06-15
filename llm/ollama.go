@@ -43,7 +43,8 @@ Input Email:
 Context:
 - %s
 
-Please provide response to the mention without any additional commentary, as it will be sent as-is to the user:`, mention, contextStr)
+Please provide response to the mention without any additional commentary, as it will be sent as-is to the user.
+I repeat, reply extrictly with **just** the text of the response.`, mention, contextStr)
 
 	reqPayload := OllamaRequest{
 		Model:  "phi3:mini",
