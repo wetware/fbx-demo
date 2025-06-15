@@ -17,6 +17,8 @@ RUN pip install --no-cache-dir -r /requirements.txt
 
 COPY . /tiktok
 
+RUN mkdir -p /tiktok/api/cap
+
 WORKDIR /
 
 CMD ["python", "-c", "print('I should be replaced in docker-compose.yaml')"]
