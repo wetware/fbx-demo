@@ -1,0 +1,4 @@
+using Go = import "/go.capnp";
+
+$Go.package("llm");
+$Go.import("github.com/wetware/fbx-demo/llm");
